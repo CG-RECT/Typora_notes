@@ -915,12 +915,57 @@ docker network create fastdfs_network
 docker run -it -d --name fastdfs_tracker -h tracker --network=fastdfs_network -p 22122:22122 --volume=/mnt/d/devTools/dockerData/volume/fastdfs/tracker:/var/fdfs delron/fastdfs:latest tracker 
 
 # 创建storage服务
-docker run -it -d --name fastdfs_storage -h storage --network=fastdfs_network -p 8888:8888 -p 23000:23000 -e TRACKER_SERVER=host.docker.internal:22122 --volume=/mnt/d/devTools/dockerData/volume/fastdfs/storage:/var/fdfs delron/fastdfs:latest storage 
+docker run -it -d --name fastdfs_storage -h storage --network=fastdfs_network -p 8888:8888 -p 23000:23000 -e TRACKER_SERVER=host.docker.internal:22122 --volume=/mnt/d/devTools/dockerData/volume/fastdfs/storage_contract:/var/fdfs --volume=/mnt/d/devTools/dockerData/volume/fastdfs/storage:/var/fdfs2 delron/fastdfs:latest storage 
 
+# 当有多个存储空间时 使用下方这个
+docker run -it -d --name fastdfs_storage -h storage --network=fastdfs_network -p 8888:8888 -p 23000:23000 -e TRACKER_SERVER=host.docker.internal:22122 --volume=/mnt/d/devTools/dockerData/volume/fastdfs/storage:/var/fdfs --volume=/mnt/d/devTools/dockerData/volume/fastdfs/storage_contract:/var/fdfs2 delron/fastdfs:latest storage 
 
+# 如果有多个存储路径，记得修改配置文件 （storage容器的 /etc/fdfs/storage.conf 文件的配置）
+store_path_count=2
+store_path0=/var/fdfs
+store_path1=/var/fdfs1
+# 对应应用也要设置要走哪个目录
+# 设置完成之后记得重启应用
 ```
 
+多目录配置文件
 
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736585983169-a37ebb56-0ca9-466d-8ed2-0e19652a6c99.png)
+
+设置走 1 目录
+
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736586149108-eee9aeb1-187c-4a8e-9feb-d45fe91479a2.png)
+
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736500386991-5ae71387-aee3-4193-b321-e36d3638bf95.png)
+
+如图表示启动成功：
+
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736501004963-0c88e82d-0370-4a24-9662-d1449d40b127.png)
+
+测试下：
+
+在挂载目录上 D:\devTools\dockerData\volume\fastdfs\storage 创建一个测试文件 test.txt
+
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736501073022-befc46ef-bc89-401b-b6fa-a91a1d7998d2.png)
+
+之后可以在docker上看到文件成功出现
+
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736501114151-82f46d86-df5f-4337-a3d7-ac3a17b920a0.png)
+
+我们在容器终端执行:
+
+```shell
+# 上传文件
+fdfs_upload_file /etc/fdfs/client.conf /var/fdfs/test.txt
+```
+
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736501229189-2b948b4b-7108-4189-8319-1cc6e14418c8.png)
+
+对应位置成功出现，测试成功！
+
+![](https://cdn.nlark.com/yuque/0/2025/png/22229609/1736501278736-ad55cac5-6ee9-4446-8522-578dae1e28e7.png)
+
+部署到应用上时，因为创建的是docker自定义网络，所以外部应用访问不到 172.18.0.3:23000 （docker自定义网络）而导致无法上传和下载文件。可以在外部应用建立对应关系，把 172.18.0.3 转换成本地地址 127.0.0.1 之后就可以成功上传和下载文件。
 
 
 
