@@ -269,6 +269,15 @@ git branch -r
 git checkout <版本号> -- <文件名>
 ```
 
+<font style="color:rgb(51, 51, 51);">19.添加http和https代理</font>
+
+```bash
+git config --global http.proxy http://127.0.0.1:7897
+git config --global https.proxy http://127.0.0.1:7897
+```
+
+
+
 <font style="color:rgb(51, 51, 51);">这只是 Git 常见操作的一小部分，实际使用中可能会涉及到更多的命令和场景。建议在使用 Git 前，先学习一些基础概念，然后通过实际操作逐步深入。 Git 的强大之处在于其灵活性和丰富的功能，可以适应各种开发场景。</font>
 
 <font style="color:rgb(51, 51, 51);">  
